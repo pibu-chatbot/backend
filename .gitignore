@@ -1,8 +1,16 @@
 __pycache__
 
+# chromadb
 chroma_ingredients/
+chroma_db/
 
+# env file
 .env
 
+## qlora model
+qlora_model_Bllossom
+qlora_model_mistral
 
-chroma_db
+# data
+*.csv
+*.txt
