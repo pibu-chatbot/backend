@@ -7,6 +7,7 @@ from langchain_openai import ChatOpenAI
 
 from models.embedder import embed_text
 from schemas.request_response import get_chain
+from models.rag_model import search_documents
 
 
 class QueryRequest(BaseModel):
@@ -44,8 +45,11 @@ chat_memory = get_chain(model)
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
+    # embedded_text = embed_text(request.query)
+    search_results = search_documents(request.query)
+    print('search_results:', search_results)
     response = chat_memory.invoke(
-        {"query": request.query}, 
+        {"query": request.query, "search_results": search_results}, 
         config={"configurable": {"session_id": ""}}
     )
     print(response)
@@ -55,8 +59,3 @@ if __name__=='__main__':
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
     
-    
-
-
-
-
