@@ -32,7 +32,7 @@ for _, row in cosmetics_df.iterrows():
         "product_name": row['product_name']
     }
     cosmetic_document.append(Document(page_content=content, metadata=metadata))
-print('document 생성')
+print('ingredient, cosmetic document 생성')
 
 ingredient_vectordb = Chroma.from_documents(
     documents=ingredient_document,
