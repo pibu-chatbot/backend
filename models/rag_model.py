@@ -19,7 +19,7 @@ def search_documents(text):
     )
     # vector_text = embed_texts([text])[0]
 
-    results = vectordb.similarity_search(text, k=3)
+    results = vectordb.similarity_search_with_score(text, k=3)
     print('results: ', results)
     return results
 

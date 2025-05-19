@@ -45,7 +45,6 @@ chat_memory = get_chain(model)
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
-    # embedded_text = embed_text(request.query)
     search_results = search_documents(request.query)
     print('search_results:', search_results)
     response = chat_memory.invoke(
