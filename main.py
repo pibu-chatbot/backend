@@ -11,7 +11,7 @@ from schemas.request_response import get_chain
 
 class QueryRequest(BaseModel):
     query: str
-    sessionId: str
+    session_id: str
 
 def load_api_key():
     load_dotenv()
@@ -44,7 +44,10 @@ chat_memory = get_chain(model)
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
-    response = chat_memory.invoke({"query": request.query}, config={"configurable": {"session_id": "test"}})
+    response = chat_memory.invoke(
+        {"query": request.query}, 
+        config={"configurable": {"session_id": ""}}
+    )
     print(response)
     return {"answer": response.content}
 
