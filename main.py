@@ -13,9 +13,8 @@ class QueryRequest(BaseModel):
     query: str
     sessionId: str
 
-def load_openai_api_key():
+def load_api_key():
     load_dotenv()
-    openai_api_key = os.getenv("OPENAI_API_KEY")
 
 def set_cors(app):
     app.add_middleware(
@@ -39,6 +38,7 @@ def create_app():
     return app
 
 app = create_app()
+load_api_key()
 model = build_model()
 chat_memory = get_chain(model)
 
