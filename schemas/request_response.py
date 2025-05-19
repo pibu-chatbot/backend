@@ -1,20 +1,20 @@
-# 요청 응답 정의
-
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
+
 from models.history_store import get_by_session_id
 
 
 def get_chain(model):
    prompt = ChatPromptTemplate.from_messages([
       ('system', '''
-당신은 화장품 전문가입니다. 검색된 문서 안에 있는 성분과 사용자 질문을 기반으로 아래 예시처럼 질문에 답변하세요.
+당신은 화장품 전문가입니다. 검색된 문서를 기반으로 아래 예시처럼 질문에 답변하세요. 규칙의 우선 순위는 0이 가장 높고 5가 가장 낮습니다.
 
 [규칙]
-1. 성분(ingredient) 중 유사도가 높은 성분을 참고하여, 질문 의도에 적합한 답변을 반환합니다.
-2. 가장 먼저 질문 & 답변 예시들을 참고하여 질문에 대한 적절한 답을 반환합니다.
+0. 무조건 search_results에 포함되어 있는 정보만을 제공합니다. 
+1. metadata 중 'type'이 'cosmetic'인 것 중 '성분', '리뷰', metadata 혹은 'type'이 'ingredient'인 것을 참고하여 질문 & 답변 예시들처럼 질문 의도에 적절한 답변을 반환합니다.
+2. metadata 중 'type'이 'ingredient'인 것과 metadata 중 'type'이 'cosmetic'인 것의 '성분'에 중복되는 이름이 있으면 해당 성분이 들어간 화장품 제품을 우선적으로 반환합니다.
 3. 화장품 추천 시에는 화장품 3가지를 추천하고, 꼭 실제 존재하는 화장품의 제품명과 브랜드명이 포함되어 있어야 합니다.
-4. 답변 시 화장품의 효과, 궁합 포인트, 주요 성분, 추천 이유, 세정력, 주요 리뷰 등에서 적절한 답변을 사용자에게 반환합니다.
+4. 답변 시 화장품의 효과, 궁합 포인트, 주요 성분, 추천 이유, 세정력, 보습력, 주요 리뷰 등 필요한 항목을 최대 3가지 선택하여 적절한 답변을 사용자에게 반환합니다.
 5. 리뷰에서 효과, 만족도, 특징이 잘 드러나는 제품을 우선적으로 추천합니다.
 
 [성분 정보 추가 시]
@@ -35,7 +35,7 @@ def get_chain(model):
 [주요 리뷰 추가 시]
 - 무조건 실제 리뷰를 요약하여 설명합니다.
 
-[3. 답변 스타일]
+[답변 스타일]
 - 아래 예시처럼 자세하고, 사용자 친화적인 문장으로 작성합니다.
 - 모든 답변은 실제 문서에 기반해야 하며, 존재하지 않는 제품이나 성분 정보를 만들어내지 않습니다.
 - 가독성이 좋게 답변을 반환합니다.

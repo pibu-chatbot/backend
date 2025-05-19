@@ -8,6 +8,7 @@ from langchain_openai import ChatOpenAI
 from models.embedder import embed_text
 from schemas.request_response import get_chain
 from models.rag_model import search_documents
+from models.ensemble import search_docs
 
 
 class QueryRequest(BaseModel):
@@ -45,8 +46,9 @@ chat_memory = get_chain(model)
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
-    search_results = search_documents(request.query)
-    print('search_results:', search_results)
+    # search_results = search_documents(request.query)
+    search_results = search_docs(request.query)
+    # print('search_results:', search_results)
     response = chat_memory.invoke(
         {"query": request.query, "search_results": search_results}, 
         config={"configurable": {"session_id": ""}}

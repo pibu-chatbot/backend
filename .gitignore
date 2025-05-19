@@ -3,6 +3,8 @@ __pycache__
 # chromadb
 chroma_ingredients/
 chroma_db/
+cosmetic_chromadb/
+ingredient_chromadb/
 
 # env file
 .env
