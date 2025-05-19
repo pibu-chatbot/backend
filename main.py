@@ -11,6 +11,7 @@ from schemas.request_response import get_chain
 
 class QueryRequest(BaseModel):
     query: str
+    sessionId: str
 
 def load_openai_api_key():
     load_dotenv()
