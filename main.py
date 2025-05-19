@@ -1,14 +1,11 @@
-import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_openai import ChatOpenAI
 
-from models.embedder import embed_text
 from schemas.request_response import get_chain
 from models.rag_model import search_documents
-
 
 class QueryRequest(BaseModel):
     query: str
@@ -46,7 +43,6 @@ chat_memory = get_chain(model)
 @app.post("/ask")
 def ask_question(request: QueryRequest):
     search_results = search_documents(request.query)
-    print('search_results:', search_results)
     response = chat_memory.invoke(
         {"query": request.query, "search_results": search_results}, 
         config={"configurable": {"session_id": ""}}
@@ -57,4 +53,3 @@ def ask_question(request: QueryRequest):
 if __name__=='__main__':
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-    

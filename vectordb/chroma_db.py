@@ -2,19 +2,18 @@ import pandas as pd
 from langchain_chroma import Chroma
 from langchain.schema import Document
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
 
 ingredients_df = pd.read_csv("preprocessed_ingredients.csv")
-cosmetics_df = pd.read_csv("oliveyoung_final.csv")
+cosmetics_df = pd.read_csv("oliveyoung.csv")
 print('csv 변환')
 
 embedding_model = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
+    model_name="snunlp/KR-SBERT-V40K-klueNLI-augSTS"
 )
 print('임베딩 모델 완료')
 
-documents = []
-cosmetics = []
+ingredient_document = []
+cosmetic_document = []
 
 # 성분 Document
 for _, row in ingredients_df.iterrows():
@@ -23,7 +22,7 @@ for _, row in ingredients_df.iterrows():
         "type": "ingredient",
         "name": row['ingredient']
     }
-    documents.append(Document(page_content=content, metadata=metadata))
+    ingredient_document.append(Document(page_content=content, metadata=metadata))
     
 # 화장품 Document
 for _, row in cosmetics_df.iterrows():
@@ -32,14 +31,21 @@ for _, row in cosmetics_df.iterrows():
         "type": "cosmetic",
         "product_name": row['product_name']
     }
-    documents.append(Document(page_content=content, metadata=metadata))
-print('document 생성')
+    cosmetic_document.append(Document(page_content=content, metadata=metadata))
+print('ingredient, cosmetic document 생성')
 
-vectordb = Chroma.from_documents(
-    documents=documents,
+ingredient_vectordb = Chroma.from_documents(
+    documents=ingredient_document,
     embedding=embedding_model,
-    persist_directory="./chroma_db"
+    persist_directory="./ingredient_chromadb"
 )
 
-vectordb.persist()
-print("ChromaDB에 저장 완료")
+print("ingredient_chromadb 저장 완료")
+
+cosmetic_vectordb = Chroma.from_documents(
+    documents=cosmetic_document,
+    embedding=embedding_model,
+    persist_directory="./cosmetic_chromadb"
+)
+
+print("cosmetic_chromadb 저장 완료")

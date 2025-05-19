@@ -1,27 +1,40 @@
-# RAG 기반 질의 응답
-
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.retrievers.ensemble import EnsembleRetriever
 
+def set_embedding_model():
+    embedding_model = HuggingFaceEmbeddings(
+        model_name="snunlp/KR-SBERT-V40K-klueNLI-augSTS"
+    )
+    return embedding_model
 
-embedding_model = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
-
-# def embed_texts(texts):
-#     return model.encode(texts, convert_to_numpy=True)
-
-def search_documents(text):
-    print('search_documents: ', text)
-    vectordb = Chroma(
-        persist_directory="./chroma_db", 
+def load_chromadbs(embedding_model):
+    chroma1 = Chroma(
+        persist_directory="./cosmetic_chromadb",
         embedding_function=embedding_model
     )
-    # vector_text = embed_texts([text])[0]
+    chroma2 = Chroma(
+        persist_directory="./ingredient_chromadb",
+        embedding_function=embedding_model
+    )
+    return chroma1, chroma2
 
-    results = vectordb.similarity_search_with_score(text, k=3)
-    print('results: ', results)
-    return results
+def create_ensemble_retriever(chroma1, chroma2):
+    retriever1 = chroma1.as_retriever(
+        search_type="similarity_score_threshold",
+        search_kwargs={"score_threshold": 0.0, "k": 3}
+    )
+    retriever2 = chroma2.as_retriever(
+        search_type="similarity_score_threshold",
+        search_kwargs={"score_threshold": 0.0, "k": 3}
+    )
+    ensemble_retriever = EnsembleRetriever(retrievers=[retriever1, retriever2])
+    return ensemble_retriever
 
-# if __name__=='__main__':
-#     search_documents('여드름 피부에 좋은 성분은?')
+def search_documents(query: str, k: int = 3):
+    embedding_model = set_embedding_model()
+    chroma1, chroma2 = load_chromadbs(embedding_model)
+    ensemble_retriever = create_ensemble_retriever(chroma1, chroma2)
+    docs = ensemble_retriever.invoke(query)
+
+    return docs[:k]
