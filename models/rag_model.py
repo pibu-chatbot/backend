@@ -31,10 +31,6 @@ def create_ensemble_retriever(chroma1, chroma2):
     ensemble_retriever = EnsembleRetriever(retrievers=[retriever1, retriever2])
     return ensemble_retriever
 
-def search_documents(query: str, k: int = 3):
-    embedding_model = set_embedding_model()
-    chroma1, chroma2 = load_chromadbs(embedding_model)
-    ensemble_retriever = create_ensemble_retriever(chroma1, chroma2)
+def search_documents(ensemble_retriever, query: str, k: int = 3):
     docs = ensemble_retriever.invoke(query)
-
     return docs[:k]
