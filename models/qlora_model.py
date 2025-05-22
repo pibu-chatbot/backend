@@ -32,7 +32,7 @@ class LocalHuggingFaceChat(BaseChatModel):
         if "token_type_ids" in inputs:
             del inputs["token_type_ids"]
         with torch.no_grad():
-            output_ids = self.model.generate(**inputs, max_new_tokens=1000)
+            output_ids = self.model.generate(**inputs, max_new_tokens=700)
         decoded = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
         print("모델 출력:", decoded)  # 추가
 
