@@ -32,24 +32,20 @@ class LocalHuggingFaceChat(BaseChatModel):
         if "token_type_ids" in inputs:
             del inputs["token_type_ids"]
         with torch.no_grad():
-            output_ids = self.model.generate(**inputs, max_new_tokens=200)
+            output_ids = self.model.generate(**inputs, max_new_tokens=1000)
         decoded = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+        print("모델 출력:", decoded)  # 추가
+
         answer = decoded.split("[AI]")[-1].strip()
         return ChatResult(
             generations=[ChatGeneration(message=AIMessage(content=answer))]
         )
 
     def _convert_messages_to_prompt(self, messages) -> str:
-        prompt = ""
-        for message in messages:
-            if isinstance(message, SystemMessage):
-                prompt += f"[시스템] {message.content}\n"
-            elif isinstance(message, HumanMessage):
-                prompt += f"[사용자] {message.content}\n"
-            elif isinstance(message, AIMessage):
-                prompt += f"[AI] {message.content}\n"
-        prompt += "[AI] "
-        return prompt
+       prompt = ""
+       for message in messages:
+           prompt += message.content + "\n"
+       return prompt
 
 
 def load_qlora_llm(

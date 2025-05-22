@@ -33,12 +33,18 @@ def build_model():
         model_name='gpt-4o-mini',
         temperature=0.4
     )
-
+from models.qlora_model import load_qlora_llm
+def build_qlora_model():
+    # QLoRA 모델을 반환
+    return load_qlora_llm(
+        base_model_path="beomi/KoAlpaca-Polyglot-5.8B",
+        adapter_path="./qlora_model_koalpaca"
+    )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_api_key()
-    model = build_model()
+    model = build_qlora_model()
     chat_memory = get_chain(model)
     
     embedding_model = set_embedding_model()
@@ -57,7 +63,10 @@ set_cors(app)
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
+    print("POST /ask called")  # 확인용
     search_results = search_documents(app.state.ensemble_retriever, request.query)
+    
+    print("LLM 추론 시작")# 확인용
     response = app.state.chat_memory.invoke(
         {"query": request.query, "search_results": search_results},
         config={"configurable": {"session_id": request.session_id}}
