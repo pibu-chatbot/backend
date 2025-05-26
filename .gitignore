@@ -5,7 +5,7 @@ chroma_ingredients/
 chroma_db/
 cosmetic_chromadb/
 ingredient_chromadb/
-
+merged_model/
 # env file
 .env
 
@@ -15,4 +15,6 @@ qlora_model_mistral
 
 # data
 *.csv
-*.txt
+*.txtmerged_model/
+qlora_model_koalpaca/
+qlora_model_mistral1/
